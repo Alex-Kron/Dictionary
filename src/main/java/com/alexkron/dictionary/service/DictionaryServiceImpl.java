@@ -69,12 +69,15 @@ public class DictionaryServiceImpl implements DictionaryService {
             fileWriter = new FileWriter(file);
             bufferedWriter = new BufferedWriter(fileWriter);
             if (repo.isEmpty()) {
-                return null;
+                return file;
             } else {
+                long time = System.currentTimeMillis();
                 for (Dictionary dict :
                         repo) {
+                    dict.setTtl(dict.getTtl() - time);
                     bufferedWriter.write(dict.toString());
                 }
+                bufferedWriter.flush();
             }
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Error creating dump", e);
@@ -98,7 +101,11 @@ public class DictionaryServiceImpl implements DictionaryService {
             dictionaryRepository.deleteAll();
             String line = null;
             while ((line = bufferedReader.readLine()) != null) {
-                dictionaryRepository.save(Dictionary.valueOf(line));
+                Dictionary dict = Dictionary.valueOf(line);
+                if (dict == null) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "File read error");
+                }
+                dictionaryRepository.save(dict);
             }
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "File read error");

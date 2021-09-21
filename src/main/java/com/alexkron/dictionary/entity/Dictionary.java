@@ -19,6 +19,9 @@ public class Dictionary {
     @Column(name = "Ttl", nullable = false)
     private long ttl;
 
+    public Dictionary() {
+    }
+
     public Dictionary(String id, String value) {
         this.id = id;
         this.value = value;
@@ -28,7 +31,7 @@ public class Dictionary {
     public Dictionary(String id, String value, long ttl) {
         this.id = id;
         this.value = value;
-        this.ttl = ttl;
+        this.ttl = System.currentTimeMillis() + ttl;
     }
 
     public String getId() {
@@ -57,11 +60,15 @@ public class Dictionary {
 
     @Override
     public String toString() {
-        return id + '\s' + value + '\s' + ttl + '\n';
+        return id + "__" + value + "__" + ttl + '\n';
     }
 
     public static Dictionary valueOf(String str) {
-        String[] arr = str.split("\\s*\\n*");
-        return new Dictionary(arr[0], arr[1], Long.parseLong(arr[2]));
+        String[] arr = str.split("__*\\n*");
+        if (arr.length < 3) {
+            return null;
+        } else {
+            return new Dictionary(arr[0], arr[1], Long.parseLong(arr[2]));
+        }
     }
 }
