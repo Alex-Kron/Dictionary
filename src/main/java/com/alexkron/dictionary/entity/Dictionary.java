@@ -19,13 +19,15 @@ public class Dictionary {
     @Column(name = "Ttl", nullable = false)
     private long ttl;
 
+    private final static long msInHour = 3600000;
+
     public Dictionary() {
     }
 
     public Dictionary(String id, String value) {
         this.id = id;
         this.value = value;
-        this.ttl = System.currentTimeMillis() + 3600000;
+        this.ttl = System.currentTimeMillis() + msInHour;
     }
 
     public Dictionary(String id, String value, long ttl) {

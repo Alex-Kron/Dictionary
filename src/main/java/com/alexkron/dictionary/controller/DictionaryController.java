@@ -18,12 +18,22 @@ public class DictionaryController {
 
     @GetMapping("/get/{id}")
     public String get(@PathVariable("id") String id) {
-        return dictionaryService.get(id);
+        String response = dictionaryService.get(id);
+        if (response != null) {
+            return response;
+        } else {
+            return "Not found by id = " + id;
+        }
     }
 
     @GetMapping("/remove/{id}")
     public String remove(@PathVariable("id") String id) {
-        return dictionaryService.remove(id);
+        String response = dictionaryService.remove(id);
+        if (response != null) {
+            return response;
+        } else {
+            return "Not found to remove by id = " + id;
+        }
     }
 
     @GetMapping("/set/id/{id}/value/{value}")
@@ -59,7 +69,7 @@ public class DictionaryController {
     @PostMapping("/load")
     public @ResponseBody String handleFileUpload(@RequestParam("name") String name, @RequestParam("file") MultipartFile file) throws IOException {
         if (!file.isEmpty()) {
-            File sysFile = new File("loadedDump.txt");
+            File sysFile = new File("src/main/resources/loadedDump.txt");
             try (OutputStream os = new FileOutputStream(sysFile)) {
                 os.write(file.getBytes());
             }

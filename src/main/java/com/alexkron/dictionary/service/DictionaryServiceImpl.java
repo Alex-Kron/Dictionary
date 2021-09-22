@@ -18,7 +18,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 
     @Override
     public String get(String id) {
-        return dictionaryRepository.existsById(id) ? dictionaryRepository.getById(id).getValue() : "Not found by id = " + id;
+        return dictionaryRepository.existsById(id) ? dictionaryRepository.getById(id).getValue() : null;
     }
 
     @Override
@@ -42,7 +42,8 @@ public class DictionaryServiceImpl implements DictionaryService {
             if (dictionaryRepository.existsById(id)) {
                 remove(id);
             }
-            dictionaryRepository.save(new Dictionary(id, value, ttl * 1000));
+            long msInSecond = 1000;
+            dictionaryRepository.save(new Dictionary(id, value, ttl * msInSecond));
             return true;
         }
     }
@@ -55,14 +56,14 @@ public class DictionaryServiceImpl implements DictionaryService {
             dictionaryRepository.deleteById(id);
             return value;
         } else {
-            return "Not found by id = " + id;
+            return null;
         }
     }
 
     @Override
     public File dump() {
         List<Dictionary> repo = dictionaryRepository.findAll();
-        File file = new File("dump.txt");
+        File file = new File("src/main/resources/dump.txt");
         FileWriter fileWriter = null;
         BufferedWriter bufferedWriter = null;
         try {
