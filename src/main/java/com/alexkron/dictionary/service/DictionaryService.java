@@ -5,13 +5,13 @@ import com.alexkron.dictionary.entity.Dictionary;
 import java.io.File;
 
 public interface DictionaryService {
-    String get(String id);
+    String get(String key);
 
-    boolean set(String id, String value);
+    boolean set(String key, String value);
 
-    boolean set(String id, String value, long ttl);
+    boolean set(String key, String value, long ttl);
 
-    String remove(String id);
+    String remove(String key);
 
     File dump();
 

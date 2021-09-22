@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.*;
+import java.time.Clock;
 import java.util.List;
 
 @Service
@@ -16,44 +17,54 @@ public class DictionaryServiceImpl implements DictionaryService {
     @Autowired
     DictionaryRepository dictionaryRepository;
 
+    static Clock clock = Clock.systemDefaultZone();
+
     @Override
-    public String get(String id) {
-        return dictionaryRepository.existsById(id) ? dictionaryRepository.getById(id).getValue() : null;
+    public String get(String key) {
+        return dictionaryRepository.existsById(key) ? dictionaryRepository.getById(key).getValue() : null;
     }
 
     @Override
-    public boolean set(String id, String value) {
-        if (id.isEmpty() | value.isEmpty()) {
+    public boolean set(String key, String value) {
+        if (key == null | value == null) {
             return false;
         } else {
-            if (dictionaryRepository.existsById(id)) {
-                remove(id);
+            if (key.isEmpty() | value.isEmpty()) {
+                return false;
+            } else {
+                if (dictionaryRepository.existsById(key)) {
+                    remove(key);
+                }
+                dictionaryRepository.save(new Dictionary(key, value));
+                return true;
             }
-            dictionaryRepository.save(new Dictionary(id, value));
-            return true;
         }
     }
 
     @Override
-    public boolean set(String id, String value, long ttl) {
-        if (id.isEmpty() | value.isEmpty() | ttl <= 0) {
+    public boolean set(String key, String value, long ttl) {
+        if (key == null | value == null) {
             return false;
         } else {
-            if (dictionaryRepository.existsById(id)) {
-                remove(id);
+            if (key.isEmpty() | value.isEmpty() | ttl <= 0) {
+                return false;
+            } else {
+                if (dictionaryRepository.existsById(key)) {
+                    remove(key);
+                }
+                long msInSecond = 1000;
+                dictionaryRepository.save(new Dictionary(key, value, ttl * msInSecond));
+                return true;
             }
-            long msInSecond = 1000;
-            dictionaryRepository.save(new Dictionary(id, value, ttl * msInSecond));
-            return true;
         }
     }
 
 
     @Override
-    public String remove(String id) {
-        if (dictionaryRepository.existsById(id)) {
-            String value = get(id);
-            dictionaryRepository.deleteById(id);
+    public String remove(String key) {
+        if (dictionaryRepository.existsById(key)) {
+            String value = dictionaryRepository.getById(key).getValue();
+            dictionaryRepository.deleteById(key);
             return value;
         } else {
             return null;
@@ -72,7 +83,7 @@ public class DictionaryServiceImpl implements DictionaryService {
             if (repo.isEmpty()) {
                 return file;
             } else {
-                long time = System.currentTimeMillis();
+                long time = clock.millis();
                 for (Dictionary dict :
                         repo) {
                     dict.setTtl(dict.getTtl() - time);
@@ -121,10 +132,11 @@ public class DictionaryServiceImpl implements DictionaryService {
 
     @Scheduled(fixedDelay = 1000)
     private void clearing() {
-        List<Dictionary> expired = dictionaryRepository.findByTtlIsLessThan(System.currentTimeMillis());
+        Clock clock = Clock.systemDefaultZone();
+        List<Dictionary> expired = dictionaryRepository.findByTtlIsLessThan(clock.millis());
         for (Dictionary dictionary :
                 expired) {
-            remove(dictionary.getId());
+            remove(dictionary.getKey());
         }
     }
 }

@@ -67,7 +67,7 @@ public class DictionaryController {
     }
 
     @PostMapping("/load")
-    public @ResponseBody String handleFileUpload(@RequestParam("name") String name, @RequestParam("file") MultipartFile file) throws IOException {
+    public @ResponseBody String load(@RequestParam("name") String name, @RequestParam("file") MultipartFile file) throws IOException {
         if (!file.isEmpty()) {
             File sysFile = new File("src/main/resources/loadedDump.txt");
             try (OutputStream os = new FileOutputStream(sysFile)) {

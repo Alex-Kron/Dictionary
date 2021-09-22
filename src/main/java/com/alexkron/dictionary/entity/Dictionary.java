@@ -4,14 +4,15 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.time.Clock;
 
 @Entity
 @Table(name = "Dictionary")
 public class Dictionary {
 
     @Id
-    @Column(name = "Id", nullable = false)
-    private String id;
+    @Column(name = "Key", nullable = false)
+    private String key;
 
     @Column(name = "Value", nullable = false)
     private String value;
@@ -19,25 +20,27 @@ public class Dictionary {
     @Column(name = "Ttl", nullable = false)
     private long ttl;
 
-    private final static long msInHour = 3600000;
+    private final static long MSINHOUR = 3600000;
 
     public Dictionary() {
     }
 
-    public Dictionary(String id, String value) {
-        this.id = id;
+    public Dictionary(String key, String value) {
+        this.key = key;
         this.value = value;
-        this.ttl = System.currentTimeMillis() + msInHour;
+        Clock clock = Clock.systemDefaultZone();
+        this.ttl = clock.millis() + MSINHOUR;
     }
 
-    public Dictionary(String id, String value, long ttl) {
-        this.id = id;
+    public Dictionary(String key, String value, long ttl) {
+        this.key = key;
         this.value = value;
-        this.ttl = System.currentTimeMillis() + ttl;
+        Clock clock = Clock.systemDefaultZone();
+        this.ttl = clock.millis() + ttl;
     }
 
-    public String getId() {
-        return id;
+    public String getKey() {
+        return key;
     }
 
     public String getValue() {
@@ -48,8 +51,8 @@ public class Dictionary {
         return ttl;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setKey(String id) {
+        this.key = id;
     }
 
     public void setValue(String value) {
@@ -62,7 +65,7 @@ public class Dictionary {
 
     @Override
     public String toString() {
-        return id + "__" + value + "__" + ttl + '\n';
+        return key + "__" + value + "__" + ttl + '\n';
     }
 
     public static Dictionary valueOf(String str) {
